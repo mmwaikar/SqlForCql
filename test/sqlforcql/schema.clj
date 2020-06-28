@@ -3,7 +3,6 @@
             [clojure.string :as str]
             [qbits.alia :as alia]
             [taoensso.timbre :refer [debug info]]
-            [sqlforcql.db :as db]
             [sqlforcql.atoms :as atoms]
             [sqlforcql.core :as core]))
 
@@ -107,12 +106,6 @@
   (insert-data "players_by_city")
 
   (info "Disconnect from the default DB...")
-  (core/disconnect-from-default-db))
-
-(defn db-test-fixture [f]
-  (core/connect-to-default-db)
-  (f)
-  ;(destroy-db)
   (core/disconnect-from-default-db))
 
 (deftest should_generate-schema
