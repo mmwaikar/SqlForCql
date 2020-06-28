@@ -2,6 +2,7 @@
   (:require [clojure.test :refer :all]
             [clojure.string :as str]
             [qbits.alia :as alia]
+            [taoensso.timbre :refer [debug info]]
             [sqlforcql.db :as db]
             [sqlforcql.atoms :as atoms]
             [sqlforcql.core :as core]))
@@ -11,12 +12,14 @@
   (str "CREATE KEYSPACE " keyspace " WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};"))
 
 (defn- create-keyspace [session keyspace]
+  (info "Creating a keyspace...")
   (alia/execute session (create-keyspace-stmt keyspace)))
 
 (defn- use-keyspace-stmt [keyspace]
   (str "USE " keyspace ";"))
 
 (defn- use-keyspace [session keyspace]
+  (info "Switching to keyspace...")
   (alia/execute session (use-keyspace-stmt keyspace)))
 
 (defn- drop-keyspace-stmt [keyspace]
@@ -32,18 +35,19 @@
                          PRIMARY KEY (nickname));")
 
 (def create-players-by-city-table-stmt
-  "CREATE TABLE players (nickname varchar,
-                         first_name varchar,
-                         last_name varchar,
-                         city varchar,
-                         country varchar,
-                         PRIMARY KEY (city, country));")
+  "CREATE TABLE players_by_city (nickname varchar,
+                                 first_name varchar,
+                                 last_name varchar,
+                                 city varchar,
+                                 country varchar,
+                                 PRIMARY KEY (city, country));")
 
 (defn- create-table-queries []
   [create-players-table-stmt create-players-by-city-table-stmt])
 
 (defn- create-tables [session]
-  (map #(alia/execute session %) (create-table-queries)))
+  (doall
+    (map #(alia/execute session %) (create-table-queries))))
 
 ;; for data
 (defn- get-insert-map [nickname first_name last_name city country]
@@ -53,14 +57,14 @@
    :city city
    :country country})
 
-(defn- insert-stmt [col-names-values-map]
-  (let [col-names (keys col-names-values-map)
+(defn- insert-stmt [table-name col-names-values-map]
+  (let [col-names (map name (keys col-names-values-map))
         col-values (map #(str "'" % "'") (vals col-names-values-map))
-        col-str (str/join col-names)
-        val-str (str/join col-values)]
-    (str "INSERT INTO players (" col-str ") VALUES (" val-str ");")))
+        col-str (str/join ", " col-names)
+        val-str (str/join ", " col-values)]
+    (str "INSERT INTO " table-name " (" col-str ") VALUES (" val-str ");")))
 
-(defn- insert-data []
+(defn- insert-data [table-name]
   (let [{session :session
          keyspace :keyspace} (deref atoms/default-db-map)
         fedex (get-insert-map "fedex" "Roger" "Federer" "Bern" "Switzerland")
@@ -70,8 +74,10 @@
         subu (get-insert-map "subu" "Subhashish" "Banerjee" "Abu Dhabi" "UAE")
         raju (get-insert-map "raju" "Ramchand" "Shahani" "Abu Dhabi" "UAE")
         data [fedex rafa hariya manwa subu raju]
-        insert-stmts (map insert-stmt data)]
-    (map #(alia/execute session %) insert-stmts)))
+        insert-stmts (map #(insert-stmt table-name %) data)]
+    (debug (first insert-stmts))
+    (doall
+      (map #(alia/execute session %) insert-stmts))))
 
 (defn- create-db
   "Let's generate a simple schema to test various queries."
@@ -89,14 +95,27 @@
          keyspace :keyspace} (deref atoms/default-db-map)]
     (alia/execute session (drop-keyspace-stmt keyspace))))
 
-(defn db-test-fixture [f]
+(defn generate-schema []
+  (info "Connect to the default DB...")
   (core/connect-to-default-db)
+
+  (info "Create a keyspace and some tables...")
   (create-db)
-  (insert-data)
-  (f)
-  (destroy-db)
+
+  (info "Insert data...")
+  (insert-data "players")
+  (insert-data "players_by_city")
+
+  (info "Disconnect from the default DB...")
   (core/disconnect-from-default-db))
 
-(deftest generate-schema
+(defn db-test-fixture [f]
+  (core/connect-to-default-db)
+  (f)
+  ;(destroy-db)
+  (core/disconnect-from-default-db))
+
+(deftest should_generate-schema
   (testing "Should generate a simple schema to test various queries."
+    (generate-schema)
     (is (= 0 1))))
