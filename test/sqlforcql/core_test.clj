@@ -7,6 +7,8 @@
 (def table (atom "players"))
 (def pk-col (atom :nickname))
 
+;; the below statement automatically wraps all the tests to connect
+;; to the db, run tests and then disconnect from the db.
 (use-fixtures :once config/db-test-fixture)
 
 (deftest should-get-all

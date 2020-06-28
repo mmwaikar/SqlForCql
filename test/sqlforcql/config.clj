@@ -4,7 +4,9 @@
             [sqlforcql.core :as core]
             [sqlforcql.atoms :as atoms]))
 
-(defn db-test-fixture [f]
+(defn db-test-fixture
+  "Connects to the default db, uses the default session and then disconnects from the db."
+  [f]
   (core/connect-to-default-db)
   (let [{session :session
          keyspace :keyspace} (deref atoms/default-db-map)]
