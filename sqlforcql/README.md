@@ -1,11 +1,6 @@
-# SqlForCql
+# sqlforcql
 
-SQL like capabilities for Apache Cassandra.
-
-This library helps in executing those queries against a Cassandra database which are not possible using CQL. After using any RDBMS, one tends to use SQL kind of queries, e.g.
-a query with `like` clause but those don't work in CQL. Similarly, nested SQL queries don't work.
-
-This library is written in Clojure, so the syntax is far from that of SQL, but it is minimal enough to be usable.
+A Clojure library designed to ... well, that part is up to you.
 
 ## Usage
 
