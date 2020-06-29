@@ -25,23 +25,23 @@
 
 (deftest should-get-by-partitioning-clustering-key-columns
   (testing "Should get a record by the partitioning key & the clustering key columns."
-    (let [by-pk (cql/get-by-pk-col @test-atoms/players-by-city-table
-                                   {@test-atoms/players-by-city-pk-col "Ajmer"
-                                    @test-atoms/players-by-city-ck-col "India"})
-          found (count by-pk)]
+    (let [by-pk-ck (cql/get-by-pk-col @test-atoms/players-by-city-table
+                                      {@test-atoms/players-by-city-pk-col "Ajmer"
+                                       @test-atoms/players-by-city-ck-col "India"})
+          found (count by-pk-ck)]
       (info "Found" found "record(s) using get-by-pk-col fn (with clustering key).")
       (is (= 1 found)))))
 
 (deftest should-get-by-non-partitioning-key-column
   (testing "Should get a record by a column which is not the partitioning key column."
-    (let [by-pk (cql/get-by-non-pk-col @test-atoms/players-table {@test-atoms/players-non-pk-col "Abu Dhabi"})
-          found (count by-pk)]
+    (let [by-non-pk (cql/get-by-non-pk-col @test-atoms/players-table {@test-atoms/players-non-pk-col "Abu Dhabi"})
+          found (count by-non-pk)]
       (info "Found" found "record(s) using get-by-non-pk-col fn.")
       (is (= 2 found)))))
 
 (deftest should-get-by-non-partitioning-key-column-using-a-sql-like-clause
   (testing "Should get a record by a column which is not the partitioning key column and the value contains a string."
-    (let [by-pk (cql/get-by-non-pk-col-like @test-atoms/players-table {@test-atoms/players-non-pk-col "Dhabi"})
-          found (count by-pk)]
+    (let [by-non-pk (cql/get-by-non-pk-col-like @test-atoms/players-table {@test-atoms/players-non-pk-col "Dhabi"})
+          found (count by-non-pk)]
       (info "Found" found "record(s) using get-by-non-pk-col-like fn.")
       (is (= 2 found)))))
