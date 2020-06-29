@@ -120,6 +120,14 @@
    (let [rows (get-all session keyspace table-name)]
      (filter-using-like rows non-pk-col-name-value-map))))
 
+(defn- update-query [keywordized-table-name rows pk-col-name update-map]
+  (let [pk-col-values (map #(pk-col-name %) rows)
+        pk-col-values-vec (apply vector pk-col-values)]
+    (debug pk-col-values-vec)
+    (update keywordized-table-name
+            (set-columns update-map)
+            (where [[:in pk-col-name pk-col-values-vec]]))))
+
 (defn update-by-non-pk-col-query
   "This fn is used when there is only a partitioning key and no clustering columns."
   ([table-name pk-col-name where-map update-map]
@@ -128,25 +136,18 @@
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
        (into {} []))
      (let [rows (get-by-non-pk-col table-name where-map)
-           pk-col-values (map #(pk-col-name %) rows)
-           pk-col-values-vec (apply vector pk-col-values)]
-       (debug pk-col-values-vec)
-       (update (keywordize-table-name table-name)
-               (set-columns update-map)
-               (where [[:in pk-col-name pk-col-values-vec]])))))
+           keywordized-table-name (keywordize-table-name table-name)]
+       (update-query keywordized-table-name rows pk-col-name update-map))))
 
-  ([keyspace table-name pk-col-name where-map update-map]
-   (if (db-map-empty?)
-     (do
-       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
-       (into {} []))
-     (let [rows (get-by-non-pk-col table-name where-map)
-           pk-col-values (map #(pk-col-name %) rows)
-           pk-col-values-vec (apply vector pk-col-values)]
-       (debug pk-col-values-vec)
-       (update (keywordize-table-name keyspace table-name)
-               (set-columns update-map)
-               (where [[:in pk-col-name pk-col-values-vec]]))))))
+  ([session table-name pk-col-name where-map update-map]
+   (let [rows (get-by-non-pk-col session table-name where-map)
+         keywordized-table-name (keywordize-table-name table-name)]
+     (update-query keywordized-table-name rows pk-col-name update-map)))
+
+  ([session keyspace table-name pk-col-name where-map update-map]
+   (let [rows (get-by-non-pk-col session keyspace table-name where-map)
+         keywordized-table-name (keywordize-table-name keyspace table-name)]
+     (update-query keywordized-table-name rows pk-col-name update-map))))
 
 (defn- get-eq-where-cond [col-name]
   `[= ~col-name (~col-name %)])
@@ -192,16 +193,16 @@
        (into {} []))
      (let [{session :session
             keyspace :keyspace} @db-map
-           query (update-by-non-pk-col-query keyspace table-name pk-col-name where-map update-map)]
+           query (update-by-non-pk-col-query session keyspace table-name pk-col-name where-map update-map)]
        (info query)
        (alia/execute session query))))
 
   ([session table-name pk-col-name where-map update-map]
-   (let [query (update-by-non-pk-col-query table-name pk-col-name where-map update-map)]
+   (let [query (update-by-non-pk-col-query session table-name pk-col-name where-map update-map)]
      (info query)
      (alia/execute session query)))
 
   ([session keyspace table-name pk-col-name where-map update-map]
-   (let [query (update-by-non-pk-col-query keyspace table-name pk-col-name where-map update-map)]
+   (let [query (update-by-non-pk-col-query session keyspace table-name pk-col-name where-map update-map)]
      (info query)
      (alia/execute session query))))
