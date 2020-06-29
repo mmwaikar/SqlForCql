@@ -31,6 +31,7 @@
                          last_name varchar,
                          city varchar,
                          country varchar,
+                         zip varchar,
                          PRIMARY KEY (nickname));")
 
 (def create-players-by-city-table-stmt
@@ -39,6 +40,7 @@
                                  last_name varchar,
                                  city varchar,
                                  country varchar,
+                                 zip varchar,
                                  PRIMARY KEY (city, country));")
 
 (defn- create-table-queries []
@@ -49,12 +51,13 @@
     (map #(alia/execute session %) (create-table-queries))))
 
 ;; for data
-(defn- get-insert-map [nickname first_name last_name city country]
+(defn- get-insert-map [nickname first_name last_name city country zip]
   {:nickname nickname
    :first_name first_name
    :last_name last_name
    :city city
-   :country country})
+   :country country
+   :zip zip})
 
 (defn- insert-stmt [table-name col-names-values-map]
   (let [col-names (map name (keys col-names-values-map))
@@ -66,13 +69,13 @@
 (defn- insert-data [table-name]
   (let [{session :session
          keyspace :keyspace} (deref atoms/default-db-map)
-        fedex (get-insert-map "fedex" "Roger" "Federer" "Bern" "Switzerland")
-        rafa (get-insert-map "rafa" "Rafael" "Nadal" "Madrid" "Spain")
-        hariya (get-insert-map "hariya" "Hari" "Bhargava" "Ajmer" "India")
-        manwa (get-insert-map "manwa" "Manoj" "Waikar" "Ajmer" "India")
-        subu (get-insert-map "subu" "Subhashish" "Banerjee" "Abu Dhabi" "UAE")
-        raju (get-insert-map "raju" "Ramchand" "Shahani" "Abu Dhabi" "UAE")
-        data [fedex rafa hariya manwa subu raju]
+        fedex (get-insert-map "fedex" "Roger" "Federer" "Bern" "Switzerland" "3001")
+        rafa (get-insert-map "rafa" "Rafael" "Nadal" "Madrid" "Spain" "28001")
+        naseer (get-insert-map "naseer" "Naseeruddin" "Shah" "Ajmer" "India" "305001")
+        chintu (get-insert-map "chintu" "Rishi" "Kapoor" "Jodhpur" "India" "305001")
+        sonu (get-insert-map "sonu" "Sonu" "Nigam" "Dubai" "UAE" "00000")
+        king (get-insert-map "king" "Shahrukh" "Khan" "Abu Dhabi" "UAE" "00000")
+        data [fedex rafa naseer chintu sonu king]
         insert-stmts (map #(insert-stmt table-name %) data)]
     (debug (first insert-stmts))
     (doall

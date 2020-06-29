@@ -1,5 +1,11 @@
 # How to run tests
 
+### To generate the schema
+
+```
+(sqlforcql.schema/generate-schema)
+```
+
 ### For running read (R) tests
 
 ```
