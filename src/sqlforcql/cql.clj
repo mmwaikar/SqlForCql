@@ -35,9 +35,11 @@
 
 (defn get-by-non-pk-col-query
   ([table-name non-pk-col-name-value-map]
+   (debug "use allow filtering clause")
    (select (keywordize-table-name table-name) (where non-pk-col-name-value-map) (allow-filtering)))
 
   ([keyspace table-name non-pk-col-name-value-map]
+   (debug "use allow filtering clause")
    (select (keywordize-table-name keyspace table-name) (where non-pk-col-name-value-map) (allow-filtering))))
 
 (defn update-by-non-pk-col-query
@@ -87,7 +89,8 @@
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
        (into {} []))
-     (alia/execute (:session @db-map) (get-by-non-pk-col-query (:keyspace @db-map) table-name non-pk-col-name-value-map))))
+     (alia/execute (:session @db-map)
+                   (get-by-non-pk-col-query (:keyspace @db-map) table-name non-pk-col-name-value-map))))
 
   ([session table-name non-pk-col-name-value-map]
    (alia/execute session (get-by-non-pk-col-query table-name non-pk-col-name-value-map)))
@@ -95,28 +98,27 @@
   ([session keyspace table-name non-pk-col-name-value-map]
    (alia/execute session (get-by-non-pk-col-query keyspace table-name non-pk-col-name-value-map))))
 
+(defn- filter-using-like [rows non-pk-col-name-value-map]
+  (let [col-name (first (keys non-pk-col-name-value-map))
+        col-value (first (vals non-pk-col-name-value-map))]
+    (filter #(str/includes? (% col-name) col-value) rows)))
+
 (defn get-by-non-pk-col-like
   ([table-name non-pk-col-name-value-map]
    (if (db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
        (into {} []))
-     (let [rows (get-all table-name)
-           col-name (first (keys non-pk-col-name-value-map))
-           col-value (first (vals non-pk-col-name-value-map))]
-       (filter #(str/includes? (% col-name) col-value) rows))))
+     (let [rows (get-all table-name)]
+       (filter-using-like rows non-pk-col-name-value-map))))
 
   ([session table-name non-pk-col-name-value-map]
-   (let [rows (get-all session table-name)
-         col-name (first (keys non-pk-col-name-value-map))
-         col-value (first (vals non-pk-col-name-value-map))]
-     (filter #(str/includes? (non-pk-col-name-value-map col-name) col-value) rows)))
+   (let [rows (get-all session table-name)]
+     (filter-using-like rows non-pk-col-name-value-map)))
 
   ([session keyspace table-name non-pk-col-name-value-map]
-   (let [rows (get-all session keyspace table-name)
-         col-name (first (keys non-pk-col-name-value-map))
-         col-value (first (vals non-pk-col-name-value-map))]
-     (filter #(str/includes? (% col-name) col-value) rows))))
+   (let [rows (get-all session keyspace table-name)]
+     (filter-using-like rows non-pk-col-name-value-map))))
 
 (defn update-by-non-pk-col-query
   "This fn is used when there is only a partitioning key and no clustering columns."
