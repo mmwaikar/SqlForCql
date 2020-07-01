@@ -42,18 +42,6 @@
    (debug "use allow filtering clause")
    (select (keywordize-table-name keyspace table-name) (where non-pk-col-name-value-map) (allow-filtering))))
 
-(defn update-by-non-pk-col-query
-  ([table-name to-update-cols-name-values-map non-pk-col-name-value-map]
-   (let [rows (get-by-non-pk-col-query table-name)])
-   (update (keywordize-table-name table-name)
-           (set-columns to-update-cols-name-values-map)
-           (where non-pk-col-name-value-map)))
-
-  ([keyspace table-name to-update-cols-name-values-map non-pk-col-name-value-map]
-   (update (keywordize-table-name keyspace table-name)
-           (set-columns to-update-cols-name-values-map)
-           (where non-pk-col-name-value-map))))
-
 ;; functions related to executing queries
 (defn get-all
   ([table-name]
@@ -120,7 +108,7 @@
    (let [rows (get-all session keyspace table-name)]
      (filter-using-like rows non-pk-col-name-value-map))))
 
-(defn- update-query [keywordized-table-name rows pk-col-name update-map]
+(defn- update-query-where-single-col [keywordized-table-name rows pk-col-name update-map]
   (let [pk-col-values (map #(pk-col-name %) rows)
         pk-col-values-vec (apply vector pk-col-values)]
     (debug pk-col-values-vec)
@@ -129,7 +117,9 @@
             (where [[:in pk-col-name pk-col-values-vec]]))))
 
 (defn update-by-non-pk-col-query
-  "This fn is used when there is only a partitioning key and no clustering columns."
+  "This fn is used when there is only a partitioning key and no clustering columns.
+  It has three overloads because it calls another function to get some data and
+  forms update queries based on that data."
   ([table-name pk-col-name where-map update-map]
    (if (db-map-empty?)
      (do
@@ -137,53 +127,17 @@
        (into {} []))
      (let [rows (get-by-non-pk-col table-name where-map)
            keywordized-table-name (keywordize-table-name table-name)]
-       (update-query keywordized-table-name rows pk-col-name update-map))))
+       (update-query-where-single-col keywordized-table-name rows pk-col-name update-map))))
 
   ([session table-name pk-col-name where-map update-map]
    (let [rows (get-by-non-pk-col session table-name where-map)
          keywordized-table-name (keywordize-table-name table-name)]
-     (update-query keywordized-table-name rows pk-col-name update-map)))
+     (update-query-where-single-col keywordized-table-name rows pk-col-name update-map)))
 
   ([session keyspace table-name pk-col-name where-map update-map]
    (let [rows (get-by-non-pk-col session keyspace table-name where-map)
          keywordized-table-name (keywordize-table-name keyspace table-name)]
-     (update-query keywordized-table-name rows pk-col-name update-map))))
-
-(defn- get-eq-where-cond [col-name]
-  `[= ~col-name (~col-name %)])
-
-(defn- get-eq-where-conds [pk-clustering-col-names]
-  (map get-eq-where-cond pk-clustering-col-names))
-
-(defn update-by-non-pk-col-with-clustering-col-query
-  "This fn is used when there is a partitioning key and one or more clustering columns."
-  ([table-name pk-clustering-col-names where-map update-map]
-   (if (db-map-empty?)
-     (do
-       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
-       (into {} []))
-     (let [rows (get-by-non-pk-col table-name where-map)
-           pk-clustering-col-maps (map #(select-keys % pk-clustering-col-names) rows)
-           where-vecs (get-eq-where-conds pk-clustering-col-names)
-           queries (map #(update (keywordize-table-name table-name)
-                                 (set-columns update-map)
-                                 (where [where-vecs])) pk-clustering-col-maps)]
-       (debug (first queries))
-       queries)))
-
-  ([keyspace table-name pk-clustering-col-names where-map update-map]
-   (if (db-map-empty?)
-     (do
-       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
-       (into {} []))
-     (let [rows (get-by-non-pk-col table-name where-map)
-           pk-clustering-col-maps (map #(select-keys % pk-clustering-col-names) rows)
-           where-vecs (get-eq-where-conds pk-clustering-col-names)
-           queries (map #(update (keywordize-table-name keyspace table-name)
-                                 (set-columns update-map)
-                                 (where [where-vecs])) pk-clustering-col-maps)]
-       (debug (first queries))
-       queries))))
+     (update-query-where-single-col keywordized-table-name rows pk-col-name update-map))))
 
 (defn update-by-non-pk-col
   ([table-name pk-col-name where-map update-map]
@@ -206,3 +160,72 @@
    (let [query (update-by-non-pk-col-query session keyspace table-name pk-col-name where-map update-map)]
      (info query)
      (alia/execute session query))))
+
+(defn- get-eq-where-cond [col-name-value-map]
+  (debug "cnvm:" col-name-value-map)
+  (map vector [`= `=] (keys col-name-value-map) (vals col-name-value-map)))
+
+(defn- get-eq-where-conds [pk-clustering-col-maps]
+  (doall (map #(debug "pccm:" %) pk-clustering-col-maps))
+  (map get-eq-where-cond pk-clustering-col-maps))
+
+(defn- update-query-where-multiple-cols [keywordized-table-name rows pk-clustering-col-names update-map]
+  (debug "total rows:" (count rows))
+  (debug pk-clustering-col-names)
+  (let [pk-clustering-col-maps (map #(select-keys % pk-clustering-col-names) rows)
+        where-vecs (get-eq-where-conds pk-clustering-col-maps)
+        queries (map #(update keywordized-table-name
+                              (set-columns update-map)
+                              (where [where-vecs])) pk-clustering-col-maps)]
+    (println "where-vecs:" where-vecs)
+    (debug (first pk-clustering-col-maps))
+    (debug (first queries))
+    queries))
+
+(defn update-by-non-pk-col-with-clustering-col-query
+  "This fn is used when there is a partitioning key and one or more clustering columns.
+  It has three overloads because it calls another function to get some data and
+  forms update queries based on that data."
+  ([table-name pk-clustering-col-names where-map update-map]
+   (if (db-map-empty?)
+     (do
+       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
+       (into {} []))
+     (let [rows (get-by-non-pk-col table-name where-map)
+           keywordized-table-name (keywordize-table-name table-name)]
+       (update-query-where-multiple-cols keywordized-table-name rows pk-clustering-col-names update-map))))
+
+  ([session table-name pk-clustering-col-names where-map update-map]
+   (let [rows (get-by-non-pk-col session table-name where-map)
+         keywordized-table-name (keywordize-table-name table-name)]
+     (update-query-where-multiple-cols keywordized-table-name rows pk-clustering-col-names update-map)))
+
+  ([session keyspace table-name pk-clustering-col-names where-map update-map]
+   (let [rows (get-by-non-pk-col session keyspace table-name where-map)
+         keywordized-table-name (keywordize-table-name keyspace table-name)]
+     (update-query-where-multiple-cols keywordized-table-name rows pk-clustering-col-names update-map))))
+
+(defn update-by-non-pk-col-with-clustering-col
+  ([table-name pk-clustering-col-names where-map update-map]
+   (if (db-map-empty?)
+     (do
+       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
+       (into {} []))
+     (let [{session :session
+            keyspace :keyspace} @db-map
+           queries (update-by-non-pk-col-with-clustering-col-query session keyspace table-name pk-clustering-col-names
+                                                                   where-map update-map)]
+       (doall
+         (map #(alia/execute session %) queries)))))
+
+  ([session table-name pk-clustering-col-names where-map update-map]
+   (let [queries (update-by-non-pk-col-with-clustering-col-query session table-name pk-clustering-col-names
+                                                                 where-map update-map)]
+     (doall
+       (map #(alia/execute session %) queries))))
+
+  ([session keyspace table-name pk-clustering-col-names where-map update-map]
+   (let [queries (update-by-non-pk-col-with-clustering-col-query session keyspace table-name pk-clustering-col-names
+                                                                 where-map update-map)]
+     (doall
+       (map #(alia/execute session %) queries)))))
