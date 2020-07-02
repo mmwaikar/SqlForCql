@@ -161,24 +161,19 @@
      (info query)
      (alia/execute session query))))
 
+;; (str/join " AND " (map (fn [[k v]] (str (name k) " = '" v "'")) m))
 (defn- get-eq-where-cond [col-name-value-map]
-  (debug "cnvm:" col-name-value-map)
-  (map vector [`= `=] (keys col-name-value-map) (vals col-name-value-map)))
+  (map vector [= =] (keys col-name-value-map) (vals col-name-value-map)))
 
 (defn- get-eq-where-conds [pk-clustering-col-maps]
-  (doall (map #(debug "pccm:" %) pk-clustering-col-maps))
   (map get-eq-where-cond pk-clustering-col-maps))
 
 (defn- update-query-where-multiple-cols [keywordized-table-name rows pk-clustering-col-names update-map]
-  (debug "total rows:" (count rows))
-  (debug pk-clustering-col-names)
   (let [pk-clustering-col-maps (map #(select-keys % pk-clustering-col-names) rows)
         where-vecs (get-eq-where-conds pk-clustering-col-maps)
         queries (map #(update keywordized-table-name
                               (set-columns update-map)
-                              (where [where-vecs])) pk-clustering-col-maps)]
-    (println "where-vecs:" where-vecs)
-    (debug (first pk-clustering-col-maps))
+                              (where %)) where-vecs)]
     (debug (first queries))
     queries))
 

@@ -8,4 +8,5 @@
 
 (def players-by-city-pk-col (atom :city))
 (def players-by-city-ck-col (atom :country))
-(def players-by-city-non-pk-col (atom :city))
+(def players-by-city-pk-ck-cols (atom [:city :country]))
+(def players-by-city-non-pk-col (atom :zip))
