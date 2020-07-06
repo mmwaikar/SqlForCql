@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [update])
   (:require [clojure.string :as str]
             [qbits.alia :as alia]
-            [qbits.hayt :refer [allow-filtering select set-columns update where]]
+            [qbits.hayt :refer [allow-filtering columns count* delete select set-columns update where]]
             [taoensso.timbre :refer [log debug info error]]
             [sqlforcql.db :as db]))
 
@@ -25,6 +25,10 @@
 (defn get-all-query
   ([table-name] (select (keywordize-table-name table-name)))
   ([keyspace table-name] (select (keywordize-table-name keyspace table-name))))
+
+(defn get-count-query
+  ([table-name] (select (keywordize-table-name table-name) (columns (count*))))
+  ([keyspace table-name] (select (keywordize-table-name keyspace table-name) (columns (count*)))))
 
 (defn get-by-pk-col-query
   ([table-name pk-col-name-value-map]
@@ -56,6 +60,20 @@
 
   ([session keyspace table-name]
    (alia/execute session (get-all-query keyspace table-name))))
+
+(defn get-count
+  ([table-name]
+   (if (db-map-empty?)
+     (do
+       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
+       (into {} []))
+     (:count (first (alia/execute (:session @db-map) (get-count-query (:keyspace @db-map) table-name))))))
+
+  ([session table-name]
+   (:count (first (alia/execute session (get-count-query table-name)))))
+
+  ([session keyspace table-name]
+   (:count (first (alia/execute session (get-count-query keyspace table-name))))))
 
 (defn get-by-pk-col
   ([table-name pk-col-name-value-map]
@@ -224,3 +242,43 @@
                                                                  where-map update-map)]
      (doall
        (map #(alia/execute session %) queries)))))
+
+(defn- contains-element? [coll e]
+  (some #(= e %) coll))
+
+(defn delete-multiple-by-pk-col
+  ([table-name pk-col-name values-to-exclude]
+   (if (db-map-empty?)
+     (do
+       (error "Set session and keyspace (to avoid specifying it in every fn call) by using the set-db-map! fn.")
+       (into {} []))
+     (let [{session :session
+            keyspace :keyspace} @db-map
+           rows (get-all session table-name)
+           pk-col-values (map #(pk-col-name %) rows)
+           excluding-key-values-vec (vector (remove #(contains-element? values-to-exclude %) pk-col-values))
+           delete-queries (map #(delete (keywordize-table-name table-name)
+                                        (where [[:in pk-col-name excluding-key-values-vec]])))]
+       (debug (first delete-queries))
+       (doall
+         (map #(alia/execute session %) delete-queries)))))
+
+  ([session table-name pk-col-name values-to-exclude]
+   (let [rows (get-all session table-name)
+         pk-col-values (map #(pk-col-name %) rows)
+         excluding-key-values-vec (vector (remove #(contains-element? values-to-exclude %) pk-col-values))
+         delete-queries (map #(delete (keywordize-table-name table-name)
+                                      (where [[:in pk-col-name excluding-key-values-vec]])))]
+     (debug (first delete-queries))
+     (doall
+       (map #(alia/execute session %) delete-queries))))
+
+  ([session keyspace table-name pk-col-name values-to-exclude]
+   (let [rows (get-all session table-name)
+         pk-col-values (map #(pk-col-name %) rows)
+         excluding-key-values-vec (vector (remove #(contains-element? values-to-exclude %) pk-col-values))
+         delete-queries (map #(delete (keywordize-table-name keyspace table-name)
+                                      (where [[:in pk-col-name excluding-key-values-vec]])))]
+     (debug (first delete-queries))
+     (doall
+       (map #(alia/execute session %) delete-queries)))))
