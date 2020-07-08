@@ -39,6 +39,7 @@
     <orderEntry type="library" name="Leiningen: com.taoensso/encore:2.91.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.taoensso/timbre:4.10.0" level="project" />
     <orderEntry type="library" name="Leiningen: com.taoensso/truss:1.5.0" level="project" />
+    <orderEntry type="library" name="Leiningen: fipp:0.6.23" level="project" />
     <orderEntry type="library" name="Leiningen: io.aleph/dirigiste:0.1.5" level="project" />
     <orderEntry type="library" name="Leiningen: io.aviso/pretty:0.1.33" level="project" />
     <orderEntry type="library" name="Leiningen: io.dropwizard.metrics/metrics-core:3.2.2" level="project" />
@@ -50,6 +51,7 @@
     <orderEntry type="library" name="Leiningen: org.clojure/core.async:0.4.474" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.cache:0.6.5" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.memoize:0.5.9" level="project" />
+    <orderEntry type="library" name="Leiningen: org.clojure/core.rrb-vector:0.1.1" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.specs.alpha:0.2.44" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/data.priority-map:0.0.7" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/spec.alpha:0.2.176" level="project" />
