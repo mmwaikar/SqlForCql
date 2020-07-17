@@ -37,11 +37,11 @@
     (let [by-non-pk (cql/get-by-non-pk-col @test-atoms/players-table {@test-atoms/players-non-pk-col "Abu Dhabi"})
           found (count by-non-pk)]
       (info "Found" found "record(s) using get-by-non-pk-col fn.")
-      (is (= 2 found)))))
+      (is (= 1 found)))))
 
 (deftest should-get-by-non-partitioning-key-column-using-a-sql-like-clause
   (testing "Should get a record by a column which is not the partitioning key column and the value contains a string."
     (let [by-non-pk (cql/get-by-non-pk-col-like @test-atoms/players-table {@test-atoms/players-non-pk-col "Dhabi"})
           found (count by-non-pk)]
       (info "Found" found "record(s) using get-by-non-pk-col-like fn.")
-      (is (= 2 found)))))
+      (is (= 1 found)))))

@@ -6,12 +6,11 @@
   ([] (connect-to-default-db "keyspace-name"))
 
   ([keyspace] (let [db-map (db/connect-to-db "localhost" "cassandra" "cassandra" keyspace)]
-                (reset! atoms/default-db-map db-map))))
+                (reset! atoms/default-db-map db-map)))
+
+  ([ip-address username password keyspace]
+   (let [db-map (db/connect-to-db ip-address username password keyspace)]
+     (reset! atoms/default-db-map db-map))))
 
 (defn disconnect-from-default-db []
   (db/disconnect-from-db (deref atoms/default-db-map)))
-
-;(defn foo
-;  "I don't do a whole lot."
-;  [x]
-;  (println x "Hello, World!"))
