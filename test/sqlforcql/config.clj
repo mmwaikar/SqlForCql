@@ -8,8 +8,5 @@
   "Connects to the default db, uses the default session and then disconnects from the db."
   [f]
   (core/connect-to-default-db "sqlforcql")
-  (let [{session :session
-         keyspace :keyspace} (deref atoms/default-db-map)]
-    (cql/set-db-map! session keyspace))
   (f)
   (core/disconnect-from-default-db))

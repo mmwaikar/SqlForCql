@@ -13,10 +13,10 @@
   (testing "Should update rows by a column which is not the partitioning key column."
     ;; since update does not return any rows, we need to fire the select query again
     (let [
-          ;current-value "Shabi"
-          ;updated-value "Abu Dhabi"
-          current-value "Abu Dhabi"
-          updated-value "Shabi"
+          current-value "Shabi"
+          updated-value "Abu Dhabi"
+          ;current-value "Abu Dhabi"
+          ;updated-value "Shabi"
           do-update (cql/update-by-non-pk-col @test-atoms/players-table
                                               @test-atoms/players-pk-col
                                               {@test-atoms/players-non-pk-col current-value}
@@ -31,10 +31,10 @@
   (testing "Should update rows by a column which is not the partitioning key column and the table has clustering key columns."
     ;; since update does not return any rows, we need to fire the select query again
     (let [
-          current-value "305001"
-          updated-value "411038"
-          ;current-value "411038"
-          ;updated-value "305001"
+          ;current-value "305001"
+          ;updated-value "411038"
+          current-value "411038"
+          updated-value "305001"
           do-update (cql/update-by-non-pk-col-with-clustering-col @test-atoms/players-by-city-table
                                                                   @test-atoms/players-by-city-pk-ck-cols
                                                                   {@test-atoms/players-by-city-non-pk-col current-value}
