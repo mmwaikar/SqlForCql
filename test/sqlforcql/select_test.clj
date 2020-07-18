@@ -16,6 +16,12 @@
       (info "Found" found "record(s) using get-all fn.")
       (is (= 6 found)))))
 
+(deftest should-get-count
+  (testing "Should get a count of all data from a table."
+    (let [no-of-rows (cql/get-count @test-atoms/players-table)]
+      (info "Found" no-of-rows "record(s) using get-count fn.")
+      (is (= 6 no-of-rows)))))
+
 (deftest should-get-by-partitioning-key-column
   (testing "Should get a record by the partitioning key column."
     (let [by-pk (cql/get-by-pk-col @test-atoms/players-table {@test-atoms/players-pk-col "rafa"})

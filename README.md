@@ -34,6 +34,63 @@ Once we are done, we can disconnect from Cassandra using:
   (core/disconnect-from-default-db)
 ```
 
+### Sample schema
+
+The tests in this library `sqlforcql.schema` create the following two tables (with the data as shown):
+
+#### players table
+
+*with nickname as the partitioning key (hereafter, referred to as the PK column)*
+
+|nickname|city     |country    |first_name |last_name|zip   |
+|--------|---------|-----------|-----------|---------|------|
+|fedex   |Bern     |Switzerland|Roger      |Federer  |3001  |
+|naseer  |Ajmer    |India      |Naseeruddin|Shah     |305001|
+|sonu    |Dubai    |UAE        |Sonu       |Nigam    |00000 |
+|rafa    |Madrid   |Spain      |Rafael     |Nadal    |28001 |
+|king    |Abu Dhabi|UAE        |Shahrukh   |Khan     |00000 |
+|chintu  |Jodhpur  |India      |Rishi      |Kapoor   |305001|
+
+#### players_by_city table
+
+*with city and country as the partitioning keys, so country becomes the clustering column (hereafter, referred to as 
+the CK column)*
+
+|city     |country    |first_name |last_name  |nickname|zip   |
+|---------|-----------|-----------|-----------|--------|------|
+|Jodhpur  |India      |Rishi      |Kapoor     |chintu  |305001|
+|Bern     |Switzerland|Roger      |Federer    |fedex   |3001  |
+|Abu Dhabi|UAE        |Shahrukh   |Khan       |king    |00000 |
+|Ajmer    |India      |Naseeruddin|Shah       |naseer  |305001|
+|Dubai    |UAE        |Sonu       |Nigam      |sonu    |00000 |
+|Madrid   |Spain      |Rafael     |Nadal      |rafa    |28001 |
+
+##### The following queries are obvious (though nothing which CQL can't do):
+
+* select * from players; - `(cql/get-all "players")`
+
+* select count(*) from players; - `(cql/get-count "players")`
+
+* select * from players where city = 'Ajmer' allow filtering; `(cql/get-by-non-pk-col "players" {:city "Ajmer"})`
+
+* select * from players where nickname = 'fedex'; `(cql/get-by-pk-col "players" {:nickname "fedex"})`
+
+##### Or, from players_by_city table where city and country are partitioning / clustering key columns:
+
+* select * from players_by_city where city = 'Jodhpur' and country = 'India'; 
+`(cql/get-by-pk-col "players_by_city" {:city "Jodhpur" :country "India"})`
+
+##### Now this is where the fun starts (_and the CQL betrays us_):
+
+_Suppose we wanted to execute a SQLish query with a like clause:_
+* select * from players where city like 'Dhabi'; `(cql/get-by-non-pk-col-like "players" {:city "Dhabi"})`
+
+_Or, suppose we wanted to update multiple rows based on a criteria involving some non-PK column:_
+* update players set city = 'X' where city = 'Y'; `(cql/update-by-non-pk-col "players" :nickname {:city "X"} {:city "Y"})`
+
+_A query similar to the above update query against a table having both PK and CK columns, we have to use:_
+* update players_by_city set zip = 411038 where zip = 305001; - `cql/update-by-non-pk-col-with-clustering-col "players_by_city" [:city :country] {:zip 305001} {:zip 411038}`
+
 FIXME
 
 ## License
