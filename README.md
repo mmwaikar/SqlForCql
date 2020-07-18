@@ -65,7 +65,7 @@ the CK column)*
 |Dubai    |UAE        |Sonu       |Nigam      |sonu    |00000 |
 |Madrid   |Spain      |Rafael     |Nadal      |rafa    |28001 |
 
-##### The following queries are obvious (though nothing which CQL can't do):
+#### The following queries are obvious (though nothing which CQL can't do):
 
 * select * from players; - `(cql/get-all "players")`
 
@@ -75,12 +75,12 @@ the CK column)*
 
 * select * from players where nickname = 'fedex'; `(cql/get-by-pk-col "players" {:nickname "fedex"})`
 
-##### Or, from players_by_city table where city and country are partitioning / clustering key columns:
+#### Or, from players_by_city table where city and country are PK / CK columns respectively:
 
 * select * from players_by_city where city = 'Jodhpur' and country = 'India'; 
 `(cql/get-by-pk-col "players_by_city" {:city "Jodhpur" :country "India"})`
 
-##### Now this is where the fun starts (_and the CQL betrays us_):
+#### Now this is where the fun starts (_and the CQL betrays us_):
 
 _Suppose we wanted to execute a SQLish query with a like clause:_
 * select * from players where city like 'Dhabi'; `(cql/get-by-non-pk-col-like "players" {:city "Dhabi"})`
@@ -89,7 +89,7 @@ _Or, suppose we wanted to update multiple rows based on a criteria involving som
 * update players set city = 'X' where city = 'Y'; `(cql/update-by-non-pk-col "players" :nickname {:city "X"} {:city "Y"})`
 
 _A query similar to the above update query against a table having both PK and CK columns, we have to use:_
-* update players_by_city set zip = 411038 where zip = 305001; - `cql/update-by-non-pk-col-with-clustering-col "players_by_city" [:city :country] {:zip 305001} {:zip 411038}`
+* update players_by_city set zip = 411038 where zip = 305001; - `(cql/update-by-non-pk-col-with-clustering-col "players_by_city" [:city :country] {:zip 305001} {:zip 411038})`
 
 FIXME
 
