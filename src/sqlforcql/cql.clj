@@ -64,10 +64,14 @@
   ([session keyspace table-name non-pk-col-name-value-map]
    (alia/execute session (qb/get-by-non-pk-col-query keyspace table-name non-pk-col-name-value-map))))
 
+(defn- nil-safe-includes? [s substr]
+  (and (not (nil? s))
+       (str/includes? s substr)))
+
 (defn- filter-using-like [rows non-pk-col-name-value-map]
   (let [col-name (first (keys non-pk-col-name-value-map))
         col-value (first (vals non-pk-col-name-value-map))]
-    (filter #(str/includes? (% col-name) col-value) rows)))
+    (filter #(nil-safe-includes? (% col-name) col-value) rows)))
 
 (defn get-by-non-pk-col-like
   ([table-name non-pk-col-name-value-map]
