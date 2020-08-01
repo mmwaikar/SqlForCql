@@ -42,21 +42,21 @@ The tests in this library `sqlforcql.schema` create the following two tables (wi
 
 *with nickname as the partitioning key (hereafter, referred to as the PK column)*
 
-|nickname|city     |country    |first_name |last_name|zip   |
-|--------|---------|-----------|-----------|---------|------|
-|fedex   |Bern     |Switzerland|Roger      |Federer  |3001  |
-|naseer  |Ajmer    |India      |Naseeruddin|Shah     |305001|
-|sonu    |Dubai    |UAE        |Sonu       |Nigam    |00000 |
-|rafa    |Madrid   |Spain      |Rafael     |Nadal    |28001 |
-|king    |Abu Dhabi|UAE        |Shahrukh   |Khan     |00000 |
-|chintu  |Jodhpur  |India      |Rishi      |Kapoor   |305001|
+|nickname(*)|city     |country    |first_name |last_name|zip   |
+|-----------|---------|-----------|-----------|---------|------|
+|fedex      |Bern     |Switzerland|Roger      |Federer  |3001  |
+|naseer     |Ajmer    |India      |Naseeruddin|Shah     |305001|
+|sonu       |Dubai    |UAE        |Sonu       |Nigam    |00000 |
+|rafa       |Madrid   |Spain      |Rafael     |Nadal    |28001 |
+|king       |Abu Dhabi|UAE        |Shahrukh   |Khan     |00000 |
+|chintu     |Jodhpur  |India      |Rishi      |Kapoor   |305001|
 
 #### players_by_city table
 
 *with city and country as the partitioning keys, so country becomes the clustering column (hereafter, referred to as 
 the CK column)*
 
-|city     |country    |first_name |last_name  |nickname|zip   |
+|city(*)  |country(*) |first_name |last_name  |nickname|zip   |
 |---------|-----------|-----------|-----------|--------|------|
 |Jodhpur  |India      |Rishi      |Kapoor     |chintu  |305001|
 |Bern     |Switzerland|Roger      |Federer    |fedex   |3001  |
@@ -80,7 +80,7 @@ the CK column)*
 * select * from players_by_city where city = 'Jodhpur' and country = 'India'; 
 `(cql/get-by-pk-col "players_by_city" {:city "Jodhpur" :country "India"})`
 
-#### Now this is where the fun starts (_and the CQL betrays us_):
+#### Now this is where (_the CQL betrays us_) and the fun starts:
 
 _Suppose we wanted to execute a SQLish query with a like clause:_
 * select * from players where city like 'Dhabi'; `(cql/get-by-non-pk-col-like "players" {:city "Dhabi"})`
