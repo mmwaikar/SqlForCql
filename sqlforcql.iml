@@ -22,7 +22,6 @@
     <orderEntry type="library" name="Leiningen: cc.qbits/alia:4.3.3" level="project" />
     <orderEntry type="library" name="Leiningen: cc.qbits/commons:0.5.1" level="project" />
     <orderEntry type="library" name="Leiningen: cc.qbits/hayt:4.1.0" level="project" />
-    <orderEntry type="library" name="Leiningen: cider/cider-nrepl:0.21.1" level="project" />
     <orderEntry type="library" name="Leiningen: clj-time:0.11.0" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.5" level="project" />
     <orderEntry type="library" name="Leiningen: com.datastax.cassandra/cassandra-driver-core:3.6.0:shaded" level="project" />
@@ -59,7 +58,6 @@
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer.jvm:0.7.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.analyzer:0.6.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.logging:0.3.1" level="project" />
-    <orderEntry type="library" name="Leiningen: org.clojure/tools.nrepl:0.2.12" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/tools.reader:0.10.0" level="project" />
     <orderEntry type="library" name="Leiningen: org.hdrhistogram/HdrHistogram:2.1.9" level="project" />
     <orderEntry type="library" name="Leiningen: org.ow2.asm/asm-all:4.2" level="project" />

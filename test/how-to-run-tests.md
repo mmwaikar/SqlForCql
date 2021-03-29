@@ -3,6 +3,7 @@
 ### To generate the schema
 
 ```
+(use 'sqlforcql.schema)
 (sqlforcql.schema/generate-schema)
 ```
 
