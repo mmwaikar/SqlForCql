@@ -23,6 +23,8 @@ There are just a few namespaces in this library:
 3. **sqlforcql.db** - which actually establishes a connection to Cassandra and disconnects from it
 4. **sqlforcql.atoms** - contains a single `default-db-map` atom which stores Cassandra connection parameters
 5. **sqlforcql.querybuilder** - which constructs valid CQL queries to be run against Cassandra
+6. **sqlforcql.analyze** - with a function to get counts of various tables, and a function to get the difference in the 
+   rows of a main table, and it's supporting query table.
 
 Before we can start executing any queries, we need to connect to a Cassandra instance. This can be done using:
 ```
@@ -90,6 +92,12 @@ _Or, suppose we wanted to update multiple rows based on a criteria involving som
 
 _A query similar to the above update query against a table having both PK and CK columns, we have to use:_
 * update players_by_city set zip = 411038 where zip = 305001; - `(cql/update-by-non-pk-col-with-clustering-col "players_by_city" [:city :country] {:zip 305001} {:zip 411038})`
+
+#### Getting counts of the number of rows of a few tables:
+* `(analyze/get-counts ["players" "players_by_city"])`
+
+#### Getting difference in the rows of a main table, and it's supporting query table:
+* `(analyze/get-diff "players" "players_by_city")`
 
 FIXME
 
