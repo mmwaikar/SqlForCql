@@ -1,6 +1,18 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+
+.calva/
+.hg/
+.idea/
+.ionide/
+.lsp/
+.metals/
+
 /target
 /classes
 /checkouts
+
 profiles.clj
 pom.xml
 pom.xml.asc
@@ -9,7 +21,3 @@ pom.xml.asc
 /.lein-*
 /.nrepl-port
 .hgignore
-.hg/
-.ionide
-.metals
-.calva

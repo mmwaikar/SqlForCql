@@ -15,6 +15,12 @@
 
 (deftest should-get-counts
   (testing "Should get counts of multiple tables."
-    (let [name-count-map (analyze/get-counts ["players" "players_by_city"])]
-      (info "name-count-map:" name-count-map)
+    (let [name-count-map (analyze/get-counts ["artifacts" "artifacts_by_container_key"])]
+      (info "counts:" name-count-map)
       (is (= 2 (count (keys name-count-map)))))))
+
+(deftest should-get-diff
+  (testing "Should get the difference in number of rows in a main table vs. it's supporting query table."
+    (let [diff (analyze/get-diff "container_types" "container_types_by_external_id")]
+      (info "diff:" diff)
+      (is (empty? (first (vals diff)))))))
