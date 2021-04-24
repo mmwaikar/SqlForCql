@@ -21,3 +21,13 @@
   (s/alt :table-pk-col (s/cat :table-name string? :pk-col-name-value-map map?)
          :keyspace-table-pk-col (s/cat :keyspace string? :table-name string? :pk-col-name-value-map map?)
          :session-keyspace-table-pk-col (s/cat :session string? :keyspace string? :table-name string? :pk-col-name-value-map map?)))
+
+(s/def ::names-or-with-session-keyspace
+  (s/alt :tables (s/cat :table-names vector?)
+         :session-tables (s/cat :session string? :table-names vector?)
+         :session-keyspace-tables (s/cat :session string? :keyspace string? :table-names vector?)))
+
+(s/def ::two-names-or-with-session-keyspace
+  (s/alt :two-tables (s/cat :base-table-name string? :query-table-name string?)
+         :session-two-tables (s/cat :session string? :base-table-name string? :query-table-name string?)
+         :session-keyspace-two-tables (s/cat :session string? :keyspace string? :base-table-name string? :query-table-name string?)))
