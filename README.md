@@ -16,6 +16,8 @@ This library is written in Clojure, so the syntax is far from that of SQL, but i
 
 ## Usage
 
+[![Clojars Project](https://img.shields.io/clojars/v/sqlforcql.svg)](https://clojars.org/sqlforcql)
+
 There are just a few namespaces in this library:
 
 1. **sqlforcql.core** - with functions to connect to and disconnect from Cassandra
