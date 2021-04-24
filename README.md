@@ -99,8 +99,6 @@ _A query similar to the above update query against a table having both PK and CK
 #### Getting difference in the rows of a main table, and it's supporting query table:
 * `(analyze/get-diff "players" "players_by_city")`
 
-FIXME
-
 ## License
 
 Copyright © 2020 FIXME

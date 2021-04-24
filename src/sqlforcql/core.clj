@@ -18,3 +18,8 @@
   "Disconnect from Cassandra using information stored in atoms/default-db-map map."
   []
   (db/disconnect-from-db (deref atoms/default-db-map)))
+
+(comment
+  (require '[sqlforcql.core :as core])
+  (core/connect-to-default-db "localhost" "username" "password" "keyspace")
+  (core/disconnect-from-default-db))

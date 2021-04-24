@@ -8,4 +8,6 @@
                  [cc.qbits/hayt "4.1.0"]
                  [com.taoensso/timbre "4.10.0"]
                  [fipp "0.6.23"]]
-  :repl-options {:init-ns sqlforcql.core})
+  :repl-options {:init-ns sqlforcql.core}
+  :profiles {:dev
+             {:dependencies [[org.clojure/test.check "1.1.0"]]}})

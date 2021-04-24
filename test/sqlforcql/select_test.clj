@@ -5,6 +5,11 @@
             [sqlforcql.config :as config]
             [sqlforcql.atoms-test :as test-atoms]))
 
+(comment
+  (use 'sqlforcql.select-test)
+  (clojure.test/run-tests 'sqlforcql.select-test)
+  )
+
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.
 (use-fixtures :once config/db-test-fixture)

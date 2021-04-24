@@ -25,32 +25,32 @@
 
 (defn get-diff
   "Get the difference in number of rows in a main table vs. it's supporting query table."
-  ([main-table-name query-table-name]
-   (let [main-data (set (cql/get-all main-table-name))
+  ([base-table-name query-table-name]
+   (let [base-data (set (cql/get-all base-table-name))
          query-data (set (cql/get-all query-table-name))
          diff (cond
-                (= (count main-data) (count query-data)) {:no-difference (set nil)}
-                (> (count main-data) (count query-data)) {query-table-name (s/difference main-data query-data)}
-                :else {main-table-name (s/difference query-data main-data)})]
+                (= (count base-data) (count query-data)) {:no-difference (set nil)}
+                (> (count base-data) (count query-data)) {query-table-name (s/difference base-data query-data)}
+                :else {base-table-name (s/difference query-data base-data)})]
      (fipp "difference:" diff)
      diff))
 
   ([session base-table-name query-table-name]
-   (let [main-data (set (cql/get-all session base-table-name))
+   (let [base-data (set (cql/get-all session base-table-name))
          query-data (set (cql/get-all session query-table-name))
          diff (cond
-                (= (count main-data) (count query-data)) {:no-difference (set nil)}
-                (> (count main-data) (count query-data)) {query-table-name (s/difference main-data query-data)}
-                :else {base-table-name (s/difference query-data main-data)})]
+                (= (count base-data) (count query-data)) {:no-difference (set nil)}
+                (> (count base-data) (count query-data)) {query-table-name (s/difference base-data query-data)}
+                :else {base-table-name (s/difference query-data base-data)})]
      (fipp "difference:" diff)
      diff))
 
   ([session keyspace base-table-name query-table-name]
-   (let [main-data (set (cql/get-all session keyspace base-table-name))
+   (let [base-data (set (cql/get-all session keyspace base-table-name))
          query-data (set (cql/get-all session keyspace query-table-name))
          diff (cond
-                (= (count main-data) (count query-data)) {:no-difference (set nil)}
-                (> (count main-data) (count query-data)) {query-table-name (s/difference main-data query-data)}
-                :else {base-table-name (s/difference query-data main-data)})]
+                (= (count base-data) (count query-data)) {:no-difference (set nil)}
+                (> (count base-data) (count query-data)) {query-table-name (s/difference base-data query-data)}
+                :else {base-table-name (s/difference query-data base-data)})]
      (fipp "difference:" diff)
      diff)))
