@@ -1,4 +1,5 @@
 (ns sqlforcql.cql
+  (:gen-class)
   (:refer-clojure :exclude [update])
   (:require [clojure.string :as str]
             [clojure.spec.alpha :as s]

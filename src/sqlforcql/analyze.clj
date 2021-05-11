@@ -1,4 +1,5 @@
 (ns sqlforcql.analyze
+  (:gen-class)
   (:require [clojure.set :as set]
             [clojure.spec.alpha :as s]
             [taoensso.timbre :refer [log debug info error]]

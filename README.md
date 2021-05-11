@@ -26,7 +26,11 @@ There are just a few namespaces in this library:
 4. **sqlforcql.atoms** - contains a single `default-db-map` atom which stores Cassandra connection parameters
 5. **sqlforcql.querybuilder** - which constructs valid CQL queries to be run against Cassandra
 6. **sqlforcql.analyze** - with a function to get counts of various tables, and a function to get the difference in the 
-   rows of a main table, and it's supporting query table.
+   rows of a base table, and it's supporting query table.
+7. **sqlforcql.generate** - with a function to get insert-statements when there is a difference in the rows of a base 
+   table, and it's supporting query table.   
+
+## Query capabilities
 
 Before we can start executing any queries, we need to connect to a Cassandra instance. This can be done using:
 ```
@@ -95,11 +99,28 @@ _Or, suppose we wanted to update multiple rows based on a criteria involving som
 _A query similar to the above update query against a table having both PK and CK columns, we have to use:_
 * update players_by_city set zip = 411038 where zip = 305001; - `(cql/update-by-non-pk-col-with-clustering-col "players_by_city" [:city :country] {:zip 305001} {:zip 411038})`
 
-#### Getting counts of the number of rows of a few tables:
+## Other capabilities
+
+Typically, when we are using Cassandra, it is very common to have a base table, and a supporting query table similar to 
+the `players` & `players_by_city` tables in our example above. In older Cassandra versions, there was support for 
+materialized views where we did not have to worry about keeping the number of rows in the base table and its 
+materialized view, in sync. However, current Cassandra versions have dropped support for materialized views, so it's now 
+our responsibility to keep the rows in the base table, and the supporting query tables in sync (i.e. the data in these 
+related tables should be the same). This is where the `analyze` and the `generate` namespaces help.
+
+#### Getting counts of the number of rows of a few (base, and the supporting query) tables:
 * `(analyze/get-counts ["players" "players_by_city"])`
 
-#### Getting difference in the rows of a main table, and it's supporting query table:
+#### Getting difference in the rows of a base table, and it's supporting query table:
 * `(analyze/get-diff "players" "players_by_city")`
+
+* **NOTE:** If the rows are the same, then this above function returns: `{:no-difference #{}}`
+
+#### Generating insert statements, if the rows in the base table, and it's supporting query table differ:
+* `(generate/get-insert-statements table-name table-rows)`
+
+#### Typically, the output of `analyze/get-diff` can be fed to the above function **if the rows aren't the same**:
+* `(generate/get-insert-statements (analyze/get-diff "players" "players_by_city"))`
 
 ## License
 

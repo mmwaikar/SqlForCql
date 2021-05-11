@@ -5,6 +5,7 @@
 (s/def ::keyspace string?)
 (s/def ::table-name string?)
 (s/def ::pk-col-name-value-map map?)
+(s/def ::is-set set?)
 
 (s/def ::seq-with-single-val (s/and seq? #(= (count %) 1)))
 

@@ -1,4 +1,5 @@
 (ns sqlforcql.db
+  (:gen-class)
   (:require [qbits.alia :as alia]
             [taoensso.timbre :refer [debug info]]))
 
