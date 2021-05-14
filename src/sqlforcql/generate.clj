@@ -9,17 +9,42 @@
            (java.util Date UUID)
            (clojure.lang PersistentHashSet PersistentArrayMap)))
 
+(def single-quote "'")
+(def double-quote "\"")
+(def two-single-quotes "''")
 (def fmt (SimpleDateFormat. "yyyy-MM-dd HH:mm:ss"))
+
+(defn- wrap-in-single-quotes
+  "Wraps a value v in single-quotes, resulting in 'v'."
+  [v]
+  (str single-quote v single-quote))
+
+(defn- escape-single-quotes
+  "Replaces a value containing single-quotes to one with two single-quotes, i.e. escapes a single quote.
+  So a value like Part('abcd') results in Part(''abcd'')"
+  [v]
+  (str/replace v single-quote two-single-quotes))
+
+(defn- replace-double-with-single-quotes
+  "Replaces a value \"v\" with double-quotes to one with single-quotes, resulting in 'v'."
+  [v]
+  (str/replace v double-quote single-quote))
+
+(defn- strip-leading-hash-symbol
+  "A Clojure set is represented as #{} (with a leading # symbol). This function removes the leading hash symbol."
+  [v]
+  (subs (str v) 1))
 
 (defn get-value [v]
   (let [v-type (type v)]
     (cond
-      (= v-type String) (str "'" v "'")
+      (= v-type String) (wrap-in-single-quotes (escape-single-quotes v))
       (= v-type Date) (str "'" (.format fmt v) "'")
       (= v-type UUID) v
-      (= v-type PersistentHashSet) (subs (str v) 1)
-      (= v-type PersistentArrayMap) (str/replace (json/write-str v) "\"" "'")
-      :else (str "'" v "'"))))
+      (= v-type Boolean) v
+      (= v-type PersistentHashSet) (replace-double-with-single-quotes (strip-leading-hash-symbol v))
+      (= v-type PersistentArrayMap) (replace-double-with-single-quotes (json/write-str v))
+      :else (wrap-in-single-quotes v))))
 
 (defn get-insert-statement
   "Generates an insert statement for a single row of a table (with name table-name). A row is represented as a set."

@@ -17,7 +17,7 @@
 
 (deftest should-get-insert-statements
   (testing "Should get the insert statements for rows which differ in the main vs. the supporting query table."
-    (let [diff (analyze/get-diff "players" "players_by_city")
+    (let [diff (analyze/get-diff "artifacts" "artifacts_by_container_key")
           table-name (first (keys diff))
           table-rows (first (vals diff))
           insert-statements (if-not (= table-name :no-difference)
