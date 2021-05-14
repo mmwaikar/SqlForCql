@@ -2,7 +2,7 @@
   (:require [clojure.test :refer :all]
             [taoensso.timbre :refer [debug info]]
             [sqlforcql.cql :as cql]
-            [sqlforcql.config :as config]))
+            [sqlforcql.fixture :as fixture]))
 
 (def players-table (atom "players"))
 (def players-by-city-table (atom "players_by_city"))
@@ -16,7 +16,7 @@
 
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.
-(use-fixtures :once config/db-test-fixture)
+(use-fixtures :once fixture/db-test-fixture)
 
 (deftest should-get-all
   (testing "Should load all data from a table."

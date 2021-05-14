@@ -1,4 +1,4 @@
-(ns sqlforcql.config
+(ns sqlforcql.fixture
   (:require [clojure.test :refer :all]
             [sqlforcql.core :as core]))
 
