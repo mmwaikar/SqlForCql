@@ -1,6 +1,29 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.3.5] - 2021-05-14
+### Changed
+- Revert code to 0.3.0 and include only insert statement generation improvements (as the remaining changes are not working).
+
+## [0.3.4] - 2021-05-14
+### Changed
+- Reset db related atom from core instead of from db.
+
+## [0.3.3] - 2021-05-14
+### Changed
+- Make get-db-map public.
+
+## [0.3.2] - 2021-05-14
+### Changed
+- Fix bug with de-referencing an atom.
+
+## [0.3.1] - 2021-05-14
+### Changed
+- Fix insert statement generation bugs:
+    - generate a boolean value as true instead of 'true'
+    - generate an empty hash set value as {\'\'} instead of {\"\"}
+    - generate a string value containing single-quotes with two single quotes i.e. Part(''ab'') instead of Part('ab')
+    
 ## [0.3.0] - 2021-05-11
 ### Added
 - `generate` namespace containing functions `get-insert-statements` & `get-insert-statement`.
