@@ -2,12 +2,12 @@
   (:require [clojure.test :refer :all]
             [taoensso.timbre :refer [debug info]]
             [sqlforcql.cql :as cql]
-            [sqlforcql.fixture :as fixture]
+            [sqlforcql.config :as config]
             [sqlforcql.atoms-test :as test-atoms]))
 
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.
-(use-fixtures :once fixture/db-test-fixture)
+(use-fixtures :once config/db-test-fixture)
 
 (deftest should-update-rows-by-non-partitioning-key-column
   (testing "Should update rows by a column which is not the partitioning key column."

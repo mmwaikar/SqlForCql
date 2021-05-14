@@ -6,7 +6,7 @@
             [qbits.alia :as alia]
             [qbits.hayt :refer [allow-filtering columns count* delete select set-columns update where]]
             [taoensso.timbre :refer [log debug info error]]
-            [sqlforcql.db :as db]
+            [sqlforcql.atoms :as atoms]
             [sqlforcql.querybuilder :as qb]
             [sqlforcql.specs :as specs]))
 
@@ -15,11 +15,11 @@
   ([table-name]
    {:pre  [(s/valid? ::specs/name-or-with-session-keyspace [table-name])]
     :post [(s/valid? seq? %)]}
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
-     (alia/execute (:session @db/default-db-map) (qb/get-all-query (:keyspace @db/default-db-map) table-name))))
+     (alia/execute (:session @atoms/default-db-map) (qb/get-all-query (:keyspace @atoms/default-db-map) table-name))))
 
   ([session table-name]
    {:pre  [(s/valid? ::specs/name-or-with-session-keyspace [session table-name])]
@@ -36,12 +36,12 @@
   ([table-name]
    {:pre  [(s/valid? ::specs/name-or-with-session-keyspace [table-name])]
     :post [(s/valid? number? %)]}
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
-     (:count (first (alia/execute (:session @db/default-db-map)
-                                  (qb/get-count-query (:keyspace @db/default-db-map) table-name))))))
+     (:count (first (alia/execute (:session @atoms/default-db-map)
+                                  (qb/get-count-query (:keyspace @atoms/default-db-map) table-name))))))
 
   ([session table-name]
    {:pre  [(s/valid? ::specs/name-or-with-session-keyspace [session table-name])]
@@ -58,12 +58,12 @@
   ([table-name pk-col-name-value-map]
    {:pre [(s/valid? ::specs/name-or-with-session-keyspace-pk-col-val-map [table-name pk-col-name-value-map])]
     :post [(s/valid? ::specs/seq-with-single-val %)]}
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
-     (alia/execute (:session @db/default-db-map)
-                   (qb/get-by-pk-col-query (:keyspace @db/default-db-map) table-name pk-col-name-value-map))))
+     (alia/execute (:session @atoms/default-db-map)
+                   (qb/get-by-pk-col-query (:keyspace @atoms/default-db-map) table-name pk-col-name-value-map))))
 
   ([session table-name pk-col-name-value-map]
    {:pre [(s/valid? ::specs/name-or-with-session-keyspace-pk-col-val-map [session table-name pk-col-name-value-map])]
@@ -79,12 +79,12 @@
   ([table-name non-pk-col-name-value-map]
    {:pre [(s/valid? ::specs/name-or-with-session-keyspace-pk-col-val-map [table-name non-pk-col-name-value-map])]
     :post [(s/valid? seq? %)]}
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
-     (alia/execute (:session @db/default-db-map)
-                   (qb/get-by-non-pk-col-query (:keyspace @db/default-db-map) table-name non-pk-col-name-value-map))))
+     (alia/execute (:session @atoms/default-db-map)
+                   (qb/get-by-non-pk-col-query (:keyspace @atoms/default-db-map) table-name non-pk-col-name-value-map))))
 
   ([session table-name non-pk-col-name-value-map]
    {:pre [(s/valid? ::specs/name-or-with-session-keyspace-pk-col-val-map [session table-name non-pk-col-name-value-map])]
@@ -109,7 +109,7 @@
   ([table-name non-pk-col-name-value-map]
    {:pre [(s/valid? ::specs/name-or-with-session-keyspace-pk-col-val-map [table-name non-pk-col-name-value-map])]
     :post [(s/valid? seq? %)]}
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
@@ -141,7 +141,7 @@
   It has three overloads because it calls another function to get some data and
   forms update queries based on that data."
   ([table-name pk-col-name where-map update-map]
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
@@ -161,12 +161,12 @@
 
 (defn update-by-non-pk-col
   ([table-name pk-col-name where-map update-map]
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
      (let [{session  :session
-            keyspace :keyspace} @db/default-db-map
+            keyspace :keyspace} @atoms/default-db-map
            query (update-by-non-pk-col-query session keyspace table-name pk-col-name where-map update-map)]
        (info query)
        (alia/execute session query))))
@@ -202,7 +202,7 @@
   It has three overloads because it calls another function to get some data and
   forms update queries based on that data."
   ([table-name pk-clustering-col-names where-map update-map]
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
@@ -222,12 +222,12 @@
 
 (defn update-by-non-pk-col-with-clustering-col
   ([table-name pk-clustering-col-names where-map update-map]
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
      (let [{session  :session
-            keyspace :keyspace} @db/default-db-map
+            keyspace :keyspace} @atoms/default-db-map
            queries (update-by-non-pk-col-with-clustering-col-query session keyspace table-name pk-clustering-col-names
                                                                    where-map update-map)]
        (doall
@@ -250,12 +250,12 @@
 
 (defn delete-multiple-by-pk-col
   ([table-name pk-col-name values-to-exclude]
-   (if (db/db-map-empty?)
+   (if (atoms/db-map-empty?)
      (do
        (error "Set session and keyspace (to avoid specifying it in every fn call) by using the core/connect-to-default-db fn.")
        (into {} []))
      (let [{session  :session
-            keyspace :keyspace} @db/default-db-map
+            keyspace :keyspace} @atoms/default-db-map
            rows (get-all session table-name)
            pk-col-values (map #(pk-col-name %) rows)
            excluding-key-values-vec (vector (remove #(contains-element? values-to-exclude %) pk-col-values))

@@ -1,7 +1,7 @@
 (ns sqlforcql.analyze-test
   (:require [clojure.test :refer :all]
             [taoensso.timbre :refer [debug info]]
-            [sqlforcql.fixture :as fixture]
+            [sqlforcql.config :as config]
             [sqlforcql.analyze :as analyze]))
 
 (comment
@@ -11,7 +11,7 @@
 
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.
-(use-fixtures :once fixture/db-test-fixture)
+(use-fixtures :once config/db-test-fixture)
 
 (deftest should-get-counts
   (testing "Should get counts of multiple tables."
