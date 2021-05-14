@@ -30,7 +30,7 @@
                                :credentials {:user username :password password}})
         session (alia/connect cluster)
         db-map (get-db-map cluster session keyspace)]
-    (debug "Connecting to" keyspace "on" ip-address)
+    (debug "Connecting to" keyspace "on" ip-address "with" db-map)
     (reset! default-db-map db-map)
     db-map))
 

@@ -1,8 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## 0.3.2 - 2021-05-14
+### Changed
+- Fix bug with de-referencing an atom.
+
 ## 0.3.1 - 2021-05-14
-### Added
+### Changed
 - Fix insert statement generation bugs:
   - generate a boolean value as true instead of 'true'
   - generate an empty hash set value as {\'\'} instead of {\"\"}

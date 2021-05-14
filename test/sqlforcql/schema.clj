@@ -3,7 +3,7 @@
             [clojure.string :as str]
             [qbits.alia :as alia]
             [taoensso.timbre :refer [debug info]]
-            [sqlforcql.atoms :as atoms]
+            [sqlforcql.db :as db]
             [sqlforcql.core :as core]))
 
 ;; for keyspace
@@ -68,7 +68,7 @@
 
 (defn- insert-data [table-name]
   (let [{session :session
-         keyspace :keyspace} (deref atoms/default-db-map)
+         keyspace :keyspace} @db/default-db-map
         fedex (get-insert-map "fedex" "Roger" "Federer" "Bern" "Switzerland" "3001")
         rafa (get-insert-map "rafa" "Rafael" "Nadal" "Madrid" "Spain" "28001")
         naseer (get-insert-map "naseer" "Naseeruddin" "Shah" "Ajmer" "India" "305001")
@@ -85,7 +85,7 @@
   "Let's generate a simple schema to test various queries."
   []
   (let [{session :session
-         keyspace :keyspace} (deref atoms/default-db-map)]
+         keyspace :keyspace} @db/default-db-map]
     (create-keyspace session keyspace)
     (use-keyspace session keyspace)
     (create-tables session)))
@@ -94,12 +94,12 @@
   "Drop the keyspace to clean the DB."
   []
   (let [{session :session
-         keyspace :keyspace} (deref atoms/default-db-map)]
+         keyspace :keyspace} @db/default-db-map]
     (alia/execute session (drop-keyspace-stmt keyspace))))
 
 (defn generate-schema []
   (info "Connect to the default DB...")
-  (core/connect-to-default-db)
+  (core/connect-to-default-db "localhost" "" "" "sqlforcql")
 
   (info "Create a keyspace and some tables...")
   (create-db)
