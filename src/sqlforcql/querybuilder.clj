@@ -4,6 +4,12 @@
             [clojure.spec.alpha :as s]
             [sqlforcql.specs :as specs]))
 
+(defn get-table-name
+  "Get the name of the table 't' prefixed with the name of the keyspace 'k' followed by a '.'
+  i.e. returns 'k.t'."
+  [keyspace table-name]
+  (str keyspace "." table-name))
+
 (defn keywordize-table-name
   "Converts the name of the table `table-name` into a keyword. If the name
   of the keyspace is also specified, then it converts `keyspace.table-name`

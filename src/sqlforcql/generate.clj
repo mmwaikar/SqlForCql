@@ -4,6 +4,7 @@
             [clojure.data.json :as json]
             [clojure.spec.alpha :as s]
             [taoensso.timbre :refer [log debug info error]]
+            [sqlforcql.querybuilder :as qb]
             [sqlforcql.specs :as specs])
   (:import (java.text SimpleDateFormat)
            (java.util Date UUID)
@@ -48,17 +49,17 @@
 
 (defn get-insert-statement
   "Generates an insert statement for a single row of a table (with name table-name). A row is represented as a set."
-  [table-name row]
+  [keyspace table-name row]
   {:pre [s/valid? ::specs/is-set row]}
   (let [col-names (map name (keys row))
         col-values (map #(get-value %) (vals row))
         col-str (str/join ", " col-names)
         val-str (str/join ", " col-values)]
     ;(debug "types: " (vec (map type (vals row))))
-    (str "INSERT INTO " table-name "(" col-str ") VALUES (" val-str ");")))
+    (str "INSERT INTO " (qb/get-table-name keyspace table-name) "(" col-str ") VALUES (" val-str ");")))
 
 (defn get-insert-statements
   "Generates multiple insert statements for rows of a table (with name table-name). Each row is represented as a set."
-  [table-name rows]
-  (let [insert-statements (map #(get-insert-statement table-name %) rows)]
+  [keyspace table-name rows]
+  (let [insert-statements (map #(get-insert-statement keyspace table-name %) rows)]
     insert-statements))

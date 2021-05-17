@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.3.6] - 2021-05-17
+### Changed
+- In insert statement generation, use the keyspace name along with the table name.
+
 ## [0.3.5] - 2021-05-14
 ### Changed
 - Revert code to 0.3.0 and include only insert statement generation improvements (as the remaining changes are not working).

@@ -21,7 +21,7 @@
           table-name (first (keys diff))
           table-rows (first (vals diff))
           insert-statements (if-not (= table-name :no-difference)
-                              (generate/get-insert-statements table-name table-rows)
+                              (generate/get-insert-statements "sqlforcql" table-name table-rows)
                               (sequence ()))]
       (fipp insert-statements)
       (is (= 1 (count insert-statements))))))
