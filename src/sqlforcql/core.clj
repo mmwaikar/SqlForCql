@@ -7,11 +7,11 @@
   this information in atoms/default-db-map map."
   ([] (connect-to-default-db "keyspace-name"))
 
-  ([keyspace] (let [db-map (db/connect-to-db "localhost" "cassandra" "cassandra" keyspace)]
+  ([keyspace] (let [db-map (db/connect-to-db "localhost" 9042 "cassandra" "cassandra" keyspace)]
                 (reset! atoms/default-db-map db-map)))
 
-  ([ip-address username password keyspace]
-   (let [db-map (db/connect-to-db ip-address username password keyspace)]
+  ([ip-address port username password keyspace]
+   (let [db-map (db/connect-to-db ip-address port username password keyspace)]
      (reset! atoms/default-db-map db-map))))
 
 (defn disconnect-from-default-db

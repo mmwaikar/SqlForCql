@@ -43,9 +43,9 @@
       (= v-type Date) (str "'" (.format fmt v) "'")
       (= v-type UUID) v
       (= v-type Boolean) v
-      (= v-type PersistentHashSet) (replace-double-with-single-quotes (strip-leading-hash-symbol v))
-      (= v-type PersistentArrayMap) (replace-double-with-single-quotes (json/write-str v))
-      :else (wrap-in-single-quotes v))))
+      (= v-type PersistentHashSet) (escape-single-quotes (replace-double-with-single-quotes (strip-leading-hash-symbol v)))
+      (= v-type PersistentArrayMap) (escape-single-quotes (replace-double-with-single-quotes (json/write-str v)))
+      :else (wrap-in-single-quotes (escape-single-quotes v)))))
 
 (defn get-insert-statement
   "Generates an insert statement for a single row of a table (with name table-name). A row is represented as a set."
