@@ -42,6 +42,13 @@
                                  schools map<text,text>,
                                  PRIMARY KEY (nickname));")
 
+(def create-table-with-complex-columns-by-city
+  "CREATE TABLE tbl_complex_cols_by_city (nickname varchar,
+                                 city varchar,
+                                 all_cities set<text>,
+                                 schools map<text,text>,
+                                 PRIMARY KEY (city));")
+
 (defn- create-table-queries []
   [create-table-with-complex-columns])
 
