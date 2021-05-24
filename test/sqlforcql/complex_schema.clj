@@ -1,11 +1,16 @@
-(ns sqlforcql.schema
+(ns sqlforcql.complex-schema
   (:require [clojure.test :refer :all]
             [clojure.string :as str]
             [qbits.alia :as alia]
             [taoensso.timbre :refer [debug info]]
-            [sqlforcql.config :as config]
             [sqlforcql.atoms :as atoms]
+            [sqlforcql.config :as config]
             [sqlforcql.core :as core]))
+
+(comment
+  (use 'sqlforcql.complex-schema)
+  (clojure.test/run-tests 'sqlforcql.complex-schema)
+  )
 
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.
@@ -30,39 +35,29 @@
   (str "DROP " keyspace ";"))
 
 ;; for tables
-(def create-players-table-stmt
-  "CREATE TABLE players (nickname varchar,
-                         first_name varchar,
-                         last_name varchar,
-                         city varchar,
-                         country varchar,
-                         zip varchar,
-                         PRIMARY KEY (nickname));")
-
-(def create-players-by-city-table-stmt
-  "CREATE TABLE players_by_city (nickname varchar,
-                                 first_name varchar,
-                                 last_name varchar,
+(def create-table-with-complex-columns
+  "CREATE TABLE tbl_complex_cols (nickname varchar,
                                  city varchar,
-                                 country varchar,
-                                 zip varchar,
-                                 PRIMARY KEY (city, country));")
+                                 all_cities set<text>,
+                                 schools map<text,text>,
+                                 PRIMARY KEY (nickname));")
 
 (defn- create-table-queries []
-  [create-players-table-stmt create-players-by-city-table-stmt])
+  [create-table-with-complex-columns])
 
 (defn- create-tables [session]
   (doall
     (map #(alia/execute session %) (create-table-queries))))
 
 ;; for data
-(defn- get-insert-map [nickname first_name last_name city country zip]
+(defn- get-school-map [name city]
+  {:name name :city city})
+
+(defn- get-insert-map [nickname city cities schools]
   {:nickname   nickname
-   :first_name first_name
-   :last_name  last_name
    :city       city
-   :country    country
-   :zip        zip})
+   :all_cities cities
+   :schools    schools})
 
 (defn- insert-stmt [table-name col-names-values-map]
   (let [col-names (map name (keys col-names-values-map))
@@ -71,16 +66,16 @@
         val-str (str/join ", " col-values)]
     (str "INSERT INTO " table-name " (" col-str ") VALUES (" val-str ");")))
 
+;; https://cassandra.apache.org/doc/latest/cql/types.html
+
 (defn- insert-data [table-name]
   (let [{session  :session
          keyspace :keyspace} (deref atoms/default-db-map)
-        fedex (get-insert-map "fedex" "Roger" "Federer" "Bern" "Switzerland" "3001")
-        rafa (get-insert-map "rafa" "Rafael" "Nadal" "Madrid" "Spain" "28001")
-        naseer (get-insert-map "naseer" "Naseeruddin" "Shah" "Ajmer" "India" "305001")
-        chintu (get-insert-map "chintu" "Rishi" "Kapoor" "Jodhpur" "India" "305001")
-        sonu (get-insert-map "sonu" "Sonu" "Nigam" "Dubai" "UAE" "00000")
-        king (get-insert-map "king" "Shahrukh" "Khan" "Abu Dhabi" "UAE" "00000")
-        data [fedex rafa naseer chintu sonu king]
+        mannu (get-insert-map "mannu" "Pune" "{'Ajmer', 'Jodhpur', 'Meerut'}"
+                              [(get-school-map "AMS" "Ajmer") (get-school-map "LMCST" "Jodhpur")])
+        subu (get-insert-map "subu" "Dubai" "{'Ajmer', 'Jodhpur', 'Bangalore'}"
+                             [(get-school-map "St. Anselm's" "Ajmer") (get-school-map "LMCST" "Jodhpur")])
+        data [mannu subu]
         insert-stmts (map #(insert-stmt table-name %) data)]
     (debug (first insert-stmts))
     (doall
@@ -91,9 +86,10 @@
   []
   (let [{session  :session
          keyspace :keyspace} (deref atoms/default-db-map)]
-    (create-keyspace session keyspace)
+    ;(create-keyspace session keyspace)
     (use-keyspace session keyspace)
-    (create-tables session)))
+    ;(create-tables session)
+    ))
 
 (defn- destroy-db
   "Drop the keyspace to clean the DB."
@@ -107,8 +103,7 @@
   (create-db)
 
   (info "Insert data...")
-  (insert-data "players")
-  (insert-data "players_by_city")
+  (insert-data "tbl_complex_cols")
 
   (info "Disconnect from the default DB...")
   (core/disconnect-from-default-db))
