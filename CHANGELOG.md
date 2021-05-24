@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.3.8] - 2021-05-24
+### Changed
+- Write functions to generate insert statements for values of map<text,text>, set<text> columns.
+
 ## [0.3.7] - 2021-05-23
 ### Changed
 - In insert statement generation, escape single quotes for values of map<text,text>, set<text> columns.

@@ -15,6 +15,8 @@
 ;; to the db, run tests and then disconnect from the db.
 (use-fixtures :once config/db-test-fixture)
 
+;; (analyze/get-diff "tbl_complex_cols" "tbl_complex_cols_by_city")
+
 (deftest should-get-insert-statements
   (testing "Should get the insert statements for rows which differ in the main vs. the supporting query table."
     (let [diff (analyze/get-diff "players" "players_by_city")

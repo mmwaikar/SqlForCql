@@ -16,5 +16,5 @@
 
 (comment
   (require '[sqlforcql.core :as core])
-  (core/connect-to-default-db "localhost" "username" "password" "keyspace")
+  (core/connect-to-default-db "localhost" 9042 "username" "password" "keyspace")
   (core/disconnect-from-default-db))

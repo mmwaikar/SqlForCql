@@ -31,10 +31,19 @@
   [v]
   (str/replace v double-quote single-quote))
 
-(defn- strip-leading-hash-symbol
-  "A Clojure set is represented as #{} (with a leading # symbol). This function removes the leading hash symbol."
-  [v]
-  (subs (str v) 1))
+(defn- set-to-str
+  "Converts a set of values to a string, which can be inserted in a set<text> column in Cassandra."
+  [a-set]
+  (let [values-str (str/join ", " (map #(wrap-in-single-quotes (escape-single-quotes %)) a-set))]
+    (str "{" values-str "}")))
+
+(defn- map-to-str
+  "Converts a map to a string, which can be inserted in a map<text,text> column in Cassandra."
+  [a-map]
+  (let [kv-strings (for [[k v] a-map]
+                     (str (wrap-in-single-quotes k) ":" (wrap-in-single-quotes (escape-single-quotes v))))
+        comma-separated-kv-str (str/join ", " kv-strings)]
+    (str "{" comma-separated-kv-str "}")))
 
 (defn get-value [v]
   (let [v-type (type v)]
@@ -43,8 +52,8 @@
       (= v-type Date) (str "'" (.format fmt v) "'")
       (= v-type UUID) v
       (= v-type Boolean) v
-      (= v-type PersistentHashSet) (escape-single-quotes (replace-double-with-single-quotes (strip-leading-hash-symbol v)))
-      (= v-type PersistentArrayMap) (escape-single-quotes (replace-double-with-single-quotes (json/write-str v)))
+      (= v-type PersistentHashSet) (set-to-str v)
+      (= v-type PersistentArrayMap) (map-to-str v)
       :else (wrap-in-single-quotes (escape-single-quotes v)))))
 
 (defn get-insert-statement
