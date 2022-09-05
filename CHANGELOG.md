@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [0.4.0] - 2022-09-05
+### Changed
+- Fix analyze/get-counts method to return an empty map if the parameter table-names is empty.
+
 ## [0.3.9] - 2021-06-21
 ### Changed
 - Fix specs to check that type of session should be SessionManager.

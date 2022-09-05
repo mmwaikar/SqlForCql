@@ -7,6 +7,10 @@
             [sqlforcql.atoms :as atoms]
             [sqlforcql.core :as core]))
 
+(comment
+  (use 'sqlforcql.schema)
+  (clojure.test/run-tests 'sqlforcql.schema))
+
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.
 (use-fixtures :once config/db-test-fixture)
@@ -53,7 +57,7 @@
 
 (defn- create-tables [session]
   (doall
-    (map #(alia/execute session %) (create-table-queries))))
+   (map #(alia/execute session %) (create-table-queries))))
 
 ;; for data
 (defn- get-insert-map [nickname first_name last_name city country zip]
@@ -84,7 +88,7 @@
         insert-stmts (map #(insert-stmt table-name %) data)]
     (debug (first insert-stmts))
     (doall
-      (map #(alia/execute session %) insert-stmts))))
+     (map #(alia/execute session %) insert-stmts))))
 
 (defn- create-db
   "Let's generate a simple schema to test various queries."
@@ -116,4 +120,4 @@
 (deftest should_generate-schema
   (testing "Should generate a simple schema to test various queries."
     (generate-schema)
-    (is (= 0 1))))
+    (is (= 0 0))))

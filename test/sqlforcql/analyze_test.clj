@@ -6,8 +6,7 @@
 
 (comment
   (use 'sqlforcql.analyze-test)
-  (clojure.test/run-tests 'sqlforcql.analyze-test)
-  )
+  (clojure.test/run-tests 'sqlforcql.analyze-test))
 
 ;; the below statement automatically wraps all the tests to connect
 ;; to the db, run tests and then disconnect from the db.

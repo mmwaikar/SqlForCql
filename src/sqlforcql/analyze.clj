@@ -17,8 +17,10 @@
   ([table-names]
    {:pre [(s/valid? ::specs/names-or-with-session-keyspace [table-names])]
     :post [(s/valid? map? %)]}
-   (let [name-count-maps (map #(get-name-count-map % (cql/get-count %)) table-names)]
-     (apply merge name-count-maps)))
+   (if (empty? table-names)
+     {}
+     (let [name-count-maps (map #(get-name-count-map % (cql/get-count %)) table-names)]
+       (apply merge name-count-maps))))
 
   ([session table-names]
    {:pre [(s/valid? ::specs/names-or-with-session-keyspace [session table-names])]
